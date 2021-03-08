@@ -209,7 +209,17 @@ for example `cfw:read-date-command-simple' or `cfw:org-read-date-command'."
 (defcustom cfw:render-ellipsis 'ellipsis
   "Basic ellipsis tyle for calfw render functions.
   This variable affects `cfw:render-left', `cfw:render-right' and
-  `cfw:render-center'."
+  `cfw:render-center'.
+
+See `truncate-string-to-width' for more details."
+  :group 'cfw
+  :type 'string)
+
+(defcustom cfw:render-ellipsis-alt 'ellipsis
+  "Alternativeellipsis tyle for calfw render functions.
+  This variable affects `cfw:render-add-right'
+
+See `truncate-string-to-width' for more details."
   :group 'cfw
   :type 'string)
 
@@ -1358,11 +1368,12 @@ and truncate the string with ELLIPSIS."
          (margin (- width len)))
     (concat (make-string margin padding) cnt)))
 
-(defun cfw:render-add-right (width left right &optional padding)
+(defun cfw:render-add-right (width left right &optional padding ellipsis)
   "[internal] Layout strings LEFT and RIGHT within WIDTH."
   (let* ((padding (or padding ?\ ))
+		 (ellipsis (or ellipsis cfw:render-ellipsis-alt t))
          (lcnt (or (and left
-                        (cfw:render-truncate left width t))
+                        (cfw:render-truncate left width ellipsis))
                    ""))
          (llen (string-width lcnt))
          (rmargin (- width llen))
