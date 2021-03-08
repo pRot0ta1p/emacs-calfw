@@ -206,6 +206,13 @@ for example `cfw:read-date-command-simple' or `cfw:org-read-date-command'."
   :group 'cfw
   :type 'boolean)
 
+(defcustom cfw:render-ellipsis 'ellipsis
+  "Basic ellipsis tyle for calfw render functions.
+  This variable affects `cfw:render-left', `cfw:render-right' and
+  `cfw:render-center'."
+  :group 'cfw
+  :type 'string)
+
 ;;; Faces
 
 (defface cfw:face-title
@@ -1291,12 +1298,13 @@ calling functions `cfw:annotations-functions'."
                 (1- (calendar-extract-month date)))
           (calendar-extract-day date)))
 
-(defun cfw:render-center (width string &optional padding)
+(defun cfw:render-center (width string &optional padding ellipsis)
   "[internal] Format STRING in the center, padding on the both
-sides with the character PADDING."
+sides with the character PADDING and truncate the string with ELLIPSIS."
   (let* ((padding (or padding ?\ ))
+		 (ellipsis (or ellipsis cfw:render-ellipsis t))
          (cnt (or (and string
-                       (cfw:render-truncate string width t))
+                       (cfw:render-truncate string width ellipsis))
                   ""))
          (len (string-width cnt))
          (margin (/ (- width len) 2)))
@@ -1304,11 +1312,13 @@ sides with the character PADDING."
      (make-string margin padding) cnt
      (make-string (- width len margin) padding))))
 
-(defun cfw:render-left (width string &optional padding)
-  "[internal] Format STRING, padding on the right with the character PADDING."
+(defun cfw:render-left (width string &optional padding ellipsis)
+  "[internal] Format STRING, padding on the left with the character PADDING
+and truncate the string with ELLIPSIS."
   (let* ((padding (or padding ?\ ))
+		 (ellipsis (or ellipsis cfw:render-ellipsis t))
          (cnt (or (and string
-                       (cfw:render-truncate string width t))
+                       (cfw:render-truncate string width ellipsis))
                   ""))
          (len (string-width cnt))
          (margin (- width len)))
@@ -1336,11 +1346,13 @@ sides with the character PADDING."
         (message "DEBUG? CFW: FACE %S / %S" string last-face)))))
   string)
 
-(defun cfw:render-right (width string &optional padding)
-  "[internal] Format STRING, padding on the left with the character PADDING."
+(defun cfw:render-right (width string &optional padding ellipsis)
+  "[internal] Format STRING, padding on the right with the character PADDING
+and truncate the string with ELLIPSIS."
   (let* ((padding (or padding ?\ ))
+		 (ellipsis (or ellipsis cfw:render-ellipsis t))
          (cnt (or (and string
-                       (cfw:render-truncate string width t))
+                       (cfw:render-truncate string width ellipsis))
                   ""))
          (len (string-width cnt))
          (margin (- width len)))
