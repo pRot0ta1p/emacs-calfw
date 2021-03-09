@@ -1,4 +1,4 @@
-;;; calfw-cal.el --- calendar view for emacs diary
+;;; calfw-cal.el --- calendar view for emacs diary -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011  SAKURAI Masashi
 
@@ -49,7 +49,7 @@
 
 (defun cfw:cal-entry-to-event (date string)
   "[internal] Add text properties to string, allowing calfw to act on it."
-  (let* ((lines      (split-string 
+  (let* ((lines      (split-string
                       (replace-regexp-in-string
                        "[\t ]+" " " (cfw:trim string))
                       "\n"))
@@ -94,7 +94,7 @@ from the diary schedule data."
               (1+ (cfw:days-diff begin end)) t))
         non-periods
         periods)
-    (loop for i in all
+    (cl-loop for i in all
           for date = (car i)
           for title = (nth 1 i)
           for date-spec = (nth 2 i)
@@ -106,7 +106,7 @@ from the diary schedule data."
                 (push pspec periods))
             (push i non-periods)))
     (append
-     (loop
+     (cl-loop
       for (date string . rest) in non-periods
       collect (cfw:cal-entry-to-event date string))
      (list (cons 'periods
