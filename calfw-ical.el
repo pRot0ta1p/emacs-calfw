@@ -35,13 +35,17 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'calfw)
 (require 'icalendar)
 (require 'url)
+(require 'pp)
 
 (defun cfw:decode-to-calendar (dec)
   (cfw:date
    (nth 4 dec) (nth 3 dec) (nth 5 dec)))
+
+(defvar cfw:ical-cfw:ical-zone-map nil)
 
 (defun cfw:ical-event-get-dates (event)
   "Return date-time information from iCalendar event object:
@@ -53,14 +57,14 @@ events have not been supported yet."
   (let*
       ((dtstart (icalendar--get-event-property event 'DTSTART))
        (dtstart-zone (icalendar--find-time-zone
-                      (icalendar--get-event-property-attributes event 'DTSTART) zone-map))
+                      (icalendar--get-event-property-attributes event 'DTSTART) cfw:ical-zone-map))
        (dtstart-dec (icalendar--decode-isodatetime dtstart nil dtstart-zone))
        (start-d (cfw:decode-to-calendar dtstart-dec))
        (start-t (cfw:time (nth 2 dtstart-dec) (nth 1 dtstart-dec)))
 
        (dtend (icalendar--get-event-property event 'DTEND))
        (dtend-zone (icalendar--find-time-zone
-                    (icalendar--get-event-property-attributes event 'DTEND) zone-map))
+                    (icalendar--get-event-property-attributes event 'DTEND) cfw:ical-zone-map))
        (dtend-dec (icalendar--decode-isodatetime dtend nil dtend-zone))
        (dtend-1-dec (icalendar--decode-isodatetime dtend -1 dtend-zone))
 
@@ -116,7 +120,7 @@ events have not been supported yet."
                               (replace-regexp-in-string "\\\\," "," string))))
 
 (defun cfw:ical-convert-event (event)
-  (destructuring-bind (dtag date start end) (cfw:ical-event-get-dates event)
+  (cl-destructuring-bind (dtag date start end) (cfw:ical-event-get-dates event)
     (make-cfw:event
      :start-date  date
      :start-time  start
@@ -130,7 +134,7 @@ events have not been supported yet."
                    (icalendar--get-event-property event 'DESCRIPTION)))))
 
 (defun cfw:ical-convert-ical-to-calfw (ical-list)
-  (cl-loop with zone-map = (icalendar--convert-all-timezones ical-list)
+  (cl-loop with cfw:ical-zone-map = (icalendar--convert-all-timezones ical-list)
         for e in (icalendar--all-events ical-list)
         for event = (cfw:ical-convert-event e)
         if event
@@ -142,7 +146,7 @@ events have not been supported yet."
         (progn
           (message "Ignoring event \"%s\"" e)
           (message "Cannot handle this event, tag: %s" e))
-        finally (return `((periods ,periods) ,@contents))))
+        finally (cl-return `((periods ,periods) ,@contents))))
 
 (defun cfw:ical-debug (f)
   (interactive)
@@ -167,7 +171,7 @@ events have not been supported yet."
     (with-current-buffer buf
       (erase-buffer))
     (call-process-shell-command
-     cfw:ical-calendar-external-shell-command nil buf nil url)
+     (concat cfw:ical-calendar-external-shell-command " " url) nil buf nil)
     buf))
 
 (defun cfw:ical-url-to-buffer-internal (url)

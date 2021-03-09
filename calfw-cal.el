@@ -110,7 +110,7 @@ from the diary schedule data."
       for (date string . rest) in non-periods
       collect (cfw:cal-entry-to-event date string))
      (list (cons 'periods
-                 (map 'list (function (lambda (period)
+                 (cl-map 'list (function (lambda (period)
                                         (let ((spec (read (substring (car period) 2))))
                                           (cond
                                            ((eq calendar-date-style 'american)
