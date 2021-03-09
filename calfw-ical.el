@@ -1,4 +1,4 @@
-;;; calfw-ical.el --- calendar view for ical format
+;;; calfw-ical.el --- calendar view for ical format -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011  SAKURAI Masashi
 
@@ -130,7 +130,7 @@ events have not been supported yet."
                    (icalendar--get-event-property event 'DESCRIPTION)))))
 
 (defun cfw:ical-convert-ical-to-calfw (ical-list)
-  (loop with zone-map = (icalendar--convert-all-timezones ical-list)
+  (cl-loop with zone-map = (icalendar--convert-all-timezones ical-list)
         for e in (icalendar--all-events ical-list)
         for event = (cfw:ical-convert-event e)
         if event
@@ -223,7 +223,7 @@ events have not been supported yet."
 
 (defun cfw:ical-data-cache-clear (url)
   (setq cfw:ical-data-cache
-        (loop for i in cfw:ical-data-cache
+        (cl-loop for i in cfw:ical-data-cache
               for (u . d) = i
               unless (equal u url)
               collect i)))
@@ -245,13 +245,13 @@ events have not been supported yet."
     (cdr data)))
 
 (defun cfw:ical-to-calendar (url begin end)
-  (loop for event in (cfw:ical-get-data url)
+  (cl-loop for event in (cfw:ical-get-data url)
         if (and (listp event)
                 (equal 'periods (car event)))
         collect
         (cons
          'periods
-         (loop for evt in (cadr event)
+         (cl-loop for evt in (cadr event)
                if (and
                    (cfw:date-less-equal-p begin (cfw:event-end-date evt))
                    (cfw:date-less-equal-p (cfw:event-start-date evt) end))
@@ -260,7 +260,7 @@ events have not been supported yet."
         collect event))
 
 (defun cfw:ical-create-source (name url color)
-  (lexical-let ((url url))
+  (let ((url url))
     (make-cfw:source
      :name (concat "iCal:" name)
      :color color
