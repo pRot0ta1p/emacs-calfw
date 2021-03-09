@@ -45,7 +45,7 @@
   (cfw:date
    (nth 4 dec) (nth 3 dec) (nth 5 dec)))
 
-(defvar cfw:ical-cfw:ical-zone-map nil)
+(defvar cfw:ical-zone-map nil)
 
 (defun cfw:ical-event-get-dates (event)
   "Return date-time information from iCalendar event object:
